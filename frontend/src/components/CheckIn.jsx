@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapPin, Loader, Share2, Medal, CheckCircle2 } from 'lucide-react';
+import { MapPin, Loader, Star, Check } from 'lucide-react';
 
 const CheckIn = ({ playerLocation, username, onCheckinComplete }) => {
   const [loading, setLoading] = useState(false);
@@ -66,7 +66,7 @@ const CheckIn = ({ playerLocation, username, onCheckinComplete }) => {
             role="alert"
           >
             <div className="flex justify-center mb-2">
-              <CheckCircle2 size={40} className="text-green-400" />
+              <Check size={40} className="text-green-400" />
             </div>
             <h3 className="text-2xl font-bold text-white mb-2">Debriefing Complete</h3>
             
@@ -90,7 +90,7 @@ const CheckIn = ({ playerLocation, username, onCheckinComplete }) => {
                       initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2 + (idx * 0.1) }}
                       key={idx} className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded-full text-sm font-bold border border-white/5"
                     >
-                      <Medal size={16} className={badge.color} />
+                      <Star size={16} className={badge.color} />
                       <span className="text-white">{badge.name}</span>
                     </motion.div>
                   ))}
@@ -104,7 +104,7 @@ const CheckIn = ({ playerLocation, username, onCheckinComplete }) => {
                 className="flex-1 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors"
                 aria-label="Share Results"
               >
-                <Share2 size={18} /> {copied ? "Copied!" : "Share Debrief"}
+                <Star size={18} /> {copied ? "Copied!" : "Share Debrief"}
               </button>
               <button 
                 onClick={() => setResult(null)}
