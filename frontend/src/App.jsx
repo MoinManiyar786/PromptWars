@@ -13,6 +13,27 @@ function App() {
   const [username, setUsername] = useState(() => localStorage.getItem('gd_username') || '');
   const [tempName, setTempName] = useState(username);
   const [locationError, setLocationError] = useState('');
+  const [timeUntilReset, setTimeUntilReset] = useState('');
+
+  // Calculate time until next market open (simulated as next 9:30 AM ET or just next midnight for simplicity)
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date();
+      const tomorrow = new Date(now);
+      tomorrow.setHours(24, 0, 0, 0); // Next midnight
+      const diff = tomorrow - now;
+      
+      const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const s = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      setTimeUntilReset(`${h.toString().padStart(2, '0')}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`);
+    };
+    
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchTarget = async (lat, lon) => {
     try {
@@ -33,8 +54,7 @@ function App() {
         },
         (error) => {
           console.error("Geolocation error:", error);
-          setLocationError("Enable location access to play.");
-          // Fallback for testing: San Francisco
+          setLocationError("Location disabled. Using Demo Mode (San Francisco).");
           const fallback = { lat: 37.7749, lon: -122.4194 };
           setPlayerLocation(fallback);
           fetchTarget(fallback.lat, fallback.lon);
@@ -44,6 +64,34 @@ function App() {
       setLocationError("Geolocation is not supported by your browser.");
     }
   }, []);
+
+  // Keyboard Event Listener for Demo Mode (WASD or Arrows to move)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!playerLocation) return;
+      
+      // Move by ~10 meters per keypress (roughly 0.0001 degrees)
+      const moveAmount = 0.0001; 
+      
+      setPlayerLocation(prev => {
+        if (!prev) return prev;
+        let newLat = prev.lat;
+        let newLon = prev.lon;
+        
+        switch(e.key.toLowerCase()) {
+          case 'w': case 'arrowup': newLat += moveAmount; break;
+          case 's': case 'arrowdown': newLat -= moveAmount; break;
+          case 'a': case 'arrowleft': newLon -= moveAmount; break;
+          case 'd': case 'arrowright': newLon += moveAmount; break;
+          default: return prev; // Do nothing if not a movement key
+        }
+        return { lat: newLat, lon: newLon };
+      });
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [playerLocation]);
 
   const handleSaveUsername = () => {
     if (tempName.trim()) {
@@ -58,7 +106,11 @@ function App() {
 
   return (
     <main className="min-h-screen text-white p-4 md:p-8 max-w-4xl mx-auto relative z-10" aria-label="GravityDrop Main Application">
-      <header className="mb-8 text-center flex flex-col items-center">
+      <header className="mb-8 text-center flex flex-col items-center relative">
+        <div className="absolute right-0 top-0 hidden md:flex flex-col items-end bg-white/5 px-4 py-2 rounded-lg border border-white/10" aria-label="Next Target Countdown">
+          <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Next Target In</span>
+          <span className="font-mono text-yellow-400 font-bold tabular-nums">{timeUntilReset}</span>
+        </div>
         <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-blue-500/30" aria-hidden="true">
           <Rocket size={32} className="text-white" />
         </div>
@@ -66,6 +118,10 @@ function App() {
           GravityDrop
         </h1>
         <p className="text-gray-400 mt-2">Defy gravity. Explore the world.</p>
+        <div className="md:hidden mt-4 flex flex-col items-center bg-white/5 px-4 py-2 rounded-lg border border-white/10" aria-label="Next Target Countdown">
+          <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">Next Target In</span>
+          <span className="font-mono text-yellow-400 font-bold tabular-nums">{timeUntilReset}</span>
+        </div>
       </header>
 
       {!username ? (
@@ -99,7 +155,12 @@ function App() {
                   {username}
                 </span>
               </header>
-              {locationError && <p className="text-red-400 text-sm mb-4" role="alert">{locationError} (Using default location)</p>}
+              <div className="mb-4 space-y-2">
+                {locationError && <p className="text-red-400 text-sm" role="alert">{locationError}</p>}
+                <p className="text-xs text-blue-300 bg-blue-900/20 p-2 rounded border border-blue-500/30 flex items-center gap-2" role="note">
+                  <span className="font-bold">DEMO MODE:</span> Use W, A, S, D or Arrow Keys to move your pin.
+                </p>
+              </div>
               
               <Suspense fallback={<div className="h-[400px] flex items-center justify-center bg-white/5 rounded-xl animate-pulse" aria-live="polite">Loading Map Data...</div>}>
                 <Map playerLocation={playerLocation} targetLocation={targetLocation} />
