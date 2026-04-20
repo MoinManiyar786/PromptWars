@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Trophy, Medal, Star } from 'lucide-react';
+import { Trophy, Star } from 'lucide-react';
 
 const Leaderboard = () => {
   const [leaders, setLeaders] = useState([]);
@@ -47,7 +47,7 @@ const Leaderboard = () => {
                   index === 1 ? 'text-gray-300' : 
                   index === 2 ? 'text-orange-400' : 'text-gray-500'
                 }`}>
-                  {index < 3 ? <Medal size={20} /> : `#${index + 1}`}
+                  {index < 3 ? <Star size={20} /> : `#${index + 1}`}
                 </div>
                 <div className="font-semibold text-white">{player.username}</div>
               </div>
