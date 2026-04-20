@@ -1,11 +1,9 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Rocket } from 'lucide-react';
 import CheckIn from './components/CheckIn';
 import Leaderboard from './components/Leaderboard';
-
-// Code-split the map component for performance
-const Map = lazy(() => import('./components/Map'));
+import Map from './components/Map';
 
 function App() {
   const [playerLocation, setPlayerLocation] = useState(null);
@@ -162,9 +160,7 @@ function App() {
                 </p>
               </div>
               
-              <Suspense fallback={<div className="h-[400px] flex items-center justify-center bg-white/5 rounded-xl animate-pulse" aria-live="polite">Loading Map Data...</div>}>
-                <Map playerLocation={playerLocation} targetLocation={targetLocation} />
-              </Suspense>
+              <Map playerLocation={playerLocation} targetLocation={targetLocation} />
             </article>
             
             <CheckIn 
