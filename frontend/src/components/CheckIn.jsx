@@ -15,7 +15,7 @@ const CheckIn = ({ playerLocation, username, onCheckinComplete }) => {
 
     setLoading(true);
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/checkin', {
+      const response = await axios.post('https://gravitydrop-backend-779341243440.us-central1.run.app/api/checkin', {
         username: username,
         lat: playerLocation.lat,
         lon: playerLocation.lon

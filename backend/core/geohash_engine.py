@@ -1,7 +1,8 @@
-import antigravity
 import math
+import hashlib
 from datetime import date
 from typing import Tuple
+from functools import lru_cache
 
 def get_daily_target(
     player_lat: float,
@@ -34,13 +35,20 @@ def get_daily_target(
     # I'll implement a clean version here that does not print, but uses the same md5 logic.
     pass
 
+@lru_cache(maxsize=128)
 def antigravity_geohash_emulation(lat: float, lon: float, datedow: bytes) -> Tuple[float, float]:
-    '''
-    Python's antigravity.geohash() actually just prints the coordinates and opens a browser.
-    We need to compute the md5 hash to get the fractional offset.
-    https://xkcd.com/426/
-    '''
-    import hashlib
+    """
+    Emulates the Python antigravity.geohash() algorithm to compute
+    the fractional offset for the target using an MD5 hash.
+    
+    Args:
+        lat: Graticule latitude
+        lon: Graticule longitude
+        datedow: Byte string of date and Dow Jones opening
+        
+    Returns:
+        Tuple containing the final target (latitude, longitude)
+    """
     h = hashlib.md5(datedow).hexdigest()
     # The hex string is 32 characters. We split it into two 16-character chunks
     p1, p2 = h[:16], h[16:]
@@ -48,13 +56,25 @@ def antigravity_geohash_emulation(lat: float, lon: float, datedow: bytes) -> Tup
     fractional_lat = int(p1, 16) / 16**16
     fractional_lon = int(p2, 16) / 16**16
     
-    # Apply sign to fractional offset
+    # Apply sign to fractional offset based on the quadrant
     target_lat = lat + fractional_lat if lat >= 0 else lat - fractional_lat
     target_lon = lon + fractional_lon if lon >= 0 else lon - fractional_lon
     
     return target_lat, target_lon
 
 def get_target(player_lat: float, player_lon: float, game_date: date, dow_opening: str) -> Tuple[float, float]:
+    """
+    Calculates the exact daily target coordinates for a player's location.
+    
+    Args:
+        player_lat: Player's current latitude
+        player_lon: Player's current longitude
+        game_date: The date for the target
+        dow_opening: The Dow Jones opening price
+        
+    Returns:
+        Tuple of (target_lat, target_lon)
+    """
     # Determine the south-west corner of the 1x1 degree graticule
     graticule_lat = math.floor(player_lat)
     graticule_lon = math.floor(player_lon)

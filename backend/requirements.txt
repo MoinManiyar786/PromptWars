@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+python-dotenv
+httpx
+pillow
+python-multipart
+pydantic
+google-cloud-logging
+pytest
+psycopg2-binary

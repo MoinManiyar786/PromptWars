@@ -9,7 +9,7 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const response = await axios.get('http://127.0.0.1:8000/api/leaderboard');
+        const response = await axios.get('https://gravitydrop-backend-779341243440.us-central1.run.app/api/leaderboard');
         setLeaders(response.data);
       } catch (error) {
         console.error("Failed to fetch leaderboard:", error);
