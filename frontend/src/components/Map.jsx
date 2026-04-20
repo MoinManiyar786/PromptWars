@@ -42,16 +42,16 @@ const Map = ({ playerLocation, targetLocation }) => {
 
         {/* Target Location */}
         {targetLocation && (
-          <>
-            <Marker position={[targetLocation.lat, targetLocation.lon]} icon={customTargetIcon}>
-              <Popup>Today's Target</Popup>
-            </Marker>
-            <Circle 
-              center={[targetLocation.lat, targetLocation.lon]} 
-              radius={50} 
-              pathOptions={{ color: '#EF4444', fillColor: '#EF4444', fillOpacity: 0.4 }} 
-            />
-          </>
+          <Marker position={[targetLocation.lat, targetLocation.lon]} icon={customTargetIcon}>
+            <Popup>Today's Target</Popup>
+          </Marker>
+        )}
+        {targetLocation && (
+          <Circle 
+            center={[targetLocation.lat, targetLocation.lon]} 
+            radius={50} 
+            pathOptions={{ color: '#EF4444', fillColor: '#EF4444', fillOpacity: 0.4 }} 
+          />
         )}
       </MapContainer>
     </div>
